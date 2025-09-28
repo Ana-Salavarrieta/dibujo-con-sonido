@@ -23,11 +23,13 @@ pastelColors.forEach((color, idx) => {
   paletteDiv.appendChild(btn);
 });
 
+
 // Tone.js: sintetizador simple
 const synth = new Tone.Synth({
   oscillator: { type: 'triangle' },
   envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.5 }
 }).toDestination();
+let audioStarted = false;
 
 // p5.js sketch
 let sketch = (p) => {
@@ -36,14 +38,23 @@ let sketch = (p) => {
     cnv.parent('canvas-holder');
     p.background('#f7f6fd');
     p.strokeWeight(4);
+    // Iniciar audio al primer clic en el canvas
+    cnv.mousePressed(() => {
+      if (!audioStarted) {
+        Tone.start();
+        audioStarted = true;
+      }
+    });
   };
   p.draw = function() {
     if (p.mouseIsPressed && p.mouseX > 0 && p.mouseY > 0 && p.mouseX < p.width && p.mouseY < p.height) {
       p.stroke(currentColor);
       p.line(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
-      // Generar sonido según la posición Y
-      let freq = p.map(p.mouseY, 0, p.height, 400, 100);
-      synth.triggerAttackRelease(freq, '8n');
+      // Generar sonido solo si el audio está iniciado
+      if (audioStarted) {
+        let freq = p.map(p.mouseY, 0, p.height, 400, 100);
+        synth.triggerAttackRelease(freq, '8n');
+      }
     }
   };
 };
