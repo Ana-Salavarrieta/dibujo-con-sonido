@@ -31,6 +31,18 @@ const synth = new Tone.Synth({
 }).toDestination();
 let audioStarted = false;
 
+// Deshabilitar dibujo hasta que se pulse el botón
+let canDraw = false;
+const startBtn = document.getElementById('start-audio');
+if (startBtn) {
+  startBtn.onclick = async () => {
+    await Tone.start();
+    audioStarted = true;
+    canDraw = true;
+    startBtn.style.display = 'none';
+  };
+}
+
 // p5.js sketch
 let sketch = (p) => {
   p.setup = function() {
@@ -38,16 +50,9 @@ let sketch = (p) => {
     cnv.parent('canvas-holder');
     p.background('#f7f6fd');
     p.strokeWeight(4);
-    // Iniciar audio al primer clic en el canvas
-    cnv.mousePressed(() => {
-      if (!audioStarted) {
-        Tone.start();
-        audioStarted = true;
-      }
-    });
   };
   p.draw = function() {
-    if (p.mouseIsPressed && p.mouseX > 0 && p.mouseY > 0 && p.mouseX < p.width && p.mouseY < p.height) {
+    if (canDraw && p.mouseIsPressed && p.mouseX > 0 && p.mouseY > 0 && p.mouseX < p.width && p.mouseY < p.height) {
       p.stroke(currentColor);
       p.line(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
       // Generar sonido solo si el audio está iniciado
